@@ -92,3 +92,27 @@ If installation fails:
 1. Ensure CUDA toolkit is installed and `nvcc` is in `PATH`
 2. Check PyTorch CUDA compatibility: `python -c "import torch; print(torch.cuda.is_available())"`
 3. Try reinstalling: `pip install sjlt --no-cache-dir --force-reinstall`
+
+## Reference
+
+1. [A Sparse Johnson-Lindenstrauss Transform](https://arxiv.org/abs/1004.4240)
+2. [Sparser Johnson-Lindenstrauss Transforms](https://arxiv.org/abs/1012.1577)
+3. [GraSS: Scalable Influence Function with Sparse Gradient Compression](https://arxiv.org/abs/2505.18976v1)
+
+## Citation
+
+If you find this repository valuable, please give it a star! Got any questions or feedback? Feel free to open an issue. Using this in your work? Please reference us using the provided citation:
+
+```bibtex
+@misc{hu2025grass,
+  author        = {Pingbang Hu and Joseph Melkonian and Weijing Tang and Han Zhao and Jiaqi W. Ma},
+  title         = {GraSS: Scalable Influence Function with Sparse Gradient Compression},
+  archiveprefix = {arXiv},
+  eprint        = {2505.18976},
+  primaryclass  = {cs.LG},
+  url           = {https://arxiv.org/abs/2505.18976},
+  year          = {2025}
+}
+```
+
+> As this repository is an effort from the [GraSS](https://github.com/TRAIS-Lab/GraSS) project.
