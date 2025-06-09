@@ -1,6 +1,6 @@
-# sjlt
+# Sparse Johnson-Lindenstrauss Transform CUDA Kernel
 
-Sparse Johnson-Lindenstrauss Transform with CUDA acceleration for PyTorch.
+This is a simple repository for *Sparse Johnson-Lindenstrauss Transform* with CUDA acceleration for PyTorch.
 
 ## Features
 
