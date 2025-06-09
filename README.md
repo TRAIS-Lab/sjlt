@@ -32,6 +32,13 @@ cd sjlt
 pip install -e .
 ```
 
+> Due to the default `pip install -e .` isolation build behavior, it might help to use `pip install --no-build-isolation -e .` when you see something like:
+> ```bash
+> RuntimeError:
+> The detected CUDA version (11.8) mismatches the version that was used to compile
+> PyTorch (12.6). Please make sure to use the same CUDA versions.
+> ```
+
 ## Quick Start
 
 Our sjlt implementation has the following parameters:
@@ -69,3 +76,4 @@ If installation fails:
 1. Ensure CUDA toolkit is installed and `nvcc` is in `PATH`
 2. Check PyTorch CUDA compatibility: `python -c "import torch; print(torch.cuda.is_available())"`
 3. Try reinstalling: `pip install sjlt --no-cache-dir --force-reinstall`
+

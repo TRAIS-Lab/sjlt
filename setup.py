@@ -4,113 +4,82 @@ from setuptools import setup, find_packages
 from torch.utils.cpp_extension import BuildExtension, CUDAExtension
 import torch
 
-def get_cuda_arch_flags():
-    """
-    Get CUDA architecture flags based on detected GPU capability.
-    Falls back to common architectures if detection fails.
-    """
-    arch_flags = []
-
-    if torch.cuda.is_available():
-        try:
-            # Get capability of the first GPU
-            major, minor = torch.cuda.get_device_capability(0)
-
-            # Generate architecture flags for detected GPU
-            compute_capability = f"{major}{minor}"
-            arch_flags = [
-                f"-gencode=arch=compute_{compute_capability},code=sm_{compute_capability}",
-                f"-gencode=arch=compute_{compute_capability},code=compute_{compute_capability}"  # For forward compatibility
-            ]
-
-            print(f"Detected CUDA capability: {major}.{minor}, using optimized compilation")
-
-        except Exception as e:
-            print(f"Could not detect CUDA capability ({e}), using default architectures")
-
-    # If detection failed or no CUDA, use common architectures
-    if not arch_flags:
-        arch_flags = [
-            "-gencode=arch=compute_70,code=sm_70",   # V100, T4
-            "-gencode=arch=compute_75,code=sm_75",   # RTX 20 series, T4
-            "-gencode=arch=compute_80,code=sm_80",   # A100, RTX 30 series
-            "-gencode=arch=compute_86,code=sm_86",   # RTX 30 series
-            "-gencode=arch=compute_89,code=sm_89",   # RTX 40 series
-            "-gencode=arch=compute_90,code=sm_90",   # H100
-        ]
-        print("Using default CUDA architectures for broad compatibility")
-
-    return arch_flags
-
-def build_cuda_extension():
-    """Build CUDA extension with error handling"""
-
-    # Check if CUDA is available
+# A helper function to make sure CUDA is available and nvcc is found
+def check_cuda_availability():
     if not torch.cuda.is_available():
         raise RuntimeError(
-            "CUDA is not available. Please install CUDA toolkit and PyTorch with CUDA support.\n"
+            "CUDA is not available. Please install PyTorch with CUDA support.\n"
             "Visit: https://pytorch.org/get-started/locally/"
         )
-
-    # Check if nvcc is available
     try:
         import subprocess
-        result = subprocess.run(['nvcc', '--version'], capture_output=True, text=True)
-        if result.returncode != 0:
-            raise FileNotFoundError()
-        print(f"Found CUDA compiler: nvcc")
+        subprocess.run(['nvcc', '--version'], check=True)
     except FileNotFoundError:
         raise RuntimeError(
-            "CUDA compiler (nvcc) not found. Please install CUDA toolkit.\n"
-            "Visit: https://developer.nvidia.com/cuda-downloads"
+            "CUDA compiler (nvcc) not found. Please ensure the CUDA toolkit is installed and in your PATH."
         )
 
-    # Build the extension
-    return CUDAExtension(
-        name="sjlt._C",
-        sources=[
-            "sjlt/kernels/sjlt_kernel.cu"
-        ],
-        extra_compile_args={
-            "cxx": [
-                "-O3",
-                "-std=c++14",
-                "-fPIC"
-            ],
-            "nvcc": [
-                "-O3",
-                "--extended-lambda",
-                "--expt-relaxed-constexpr",
-                "-U__CUDA_NO_HALF_OPERATORS__",
-                "-U__CUDA_NO_HALF_CONVERSIONS__",
-                "-U__CUDA_NO_BFLOAT16_CONVERSIONS__",
-                "--use_fast_math",
-                "-Xptxas=-v",  # Verbose output for debugging
-            ] + get_cuda_arch_flags()
-        },
-        include_dirs=[
-            # Add any additional include directories here if needed
+def get_cuda_arch_flags():
+    """
+    Get CUDA architecture flags for the detected GPU.
+    Falls back to common architectures if detection fails.
+    """
+    if not torch.cuda.is_available():
+        return []
+
+    try:
+        major, _ = torch.cuda.get_device_capability()
+        arch_flag = f"--generate-code=arch=compute_{major}{_},code=sm_{major}{_}"
+        print(f"Detected CUDA capability {major}.{_}, using arch flag: {arch_flag}")
+        return [arch_flag]
+    except Exception as e:
+        print(f"Warning: Could not detect CUDA capability, falling back to default architectures. Error: {e}")
+        # Common architectures for broad compatibility
+        return [
+            "--generate-code=arch=compute_70,code=sm_70",  # V100
+            "--generate-code=arch=compute_75,code=sm_75",  # T4, RTX 20-series
+            "--generate-code=arch=compute_86,code=sm_86",  # RTX 30-series, A100
+            "--generate-code=arch=compute_90,code=sm_90",  # H100
         ]
-    )
 
-# Conditional extension building
-ext_modules = []
-cmdclass = {}
-
+# Build the CUDA extension
 try:
-    ext_modules = [build_cuda_extension()]
+    check_cuda_availability()
+    ext_modules = [
+        CUDAExtension(
+            name="sjlt._C",
+            sources=["sjlt/kernels/sjlt_kernel.cu"],
+            extra_compile_args={
+                "cxx": ["-O3", "-std=c++17"],
+                "nvcc": [
+                    "-O3",
+                    "--use_fast_math",
+                    "-Xptxas=-v",
+                    "--expt-relaxed-constexpr",
+                ] + get_cuda_arch_flags(),
+            },
+        )
+    ]
     cmdclass = {"build_ext": BuildExtension}
-    print("CUDA extension will be built")
-except Exception as e:
-    print(f"Warning: CUDA extension cannot be built: {e}")
-    print("Package will be installed without CUDA support")
+except RuntimeError as e:
+    print(f"Skipping CUDA extension build due to: {e}")
+    ext_modules = []
+    cmdclass = {}
 
 # Main setup
 setup(
     name="sjlt",
-    version="0.1",
+    version="0.1.0",
+    author="Your Name", # You can change this
+    description="A PyTorch package for Sparse Johnson-Lindenstrauss Transform with CUDA.",
+    long_description=open("README.md").read(),
+    long_description_content_type="text/markdown",
     packages=find_packages(),
     ext_modules=ext_modules,
     cmdclass=cmdclass,
-    zip_safe=False,  # Required for CUDA extensions
+    install_requires=[
+        "torch",
+    ],
+    python_requires=">=3.8",
+    zip_safe=False,
 )
