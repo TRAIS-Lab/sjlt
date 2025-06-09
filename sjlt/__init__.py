@@ -6,7 +6,7 @@ using the Johnson-Lindenstrauss lemma for dimensionality reduction.
 """
 
 __version__ = "0.1.0"
-__author__ = "Your Name"
+__author__ = "Pingbang Hu"
 
 import torch
 import warnings

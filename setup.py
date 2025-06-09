@@ -70,7 +70,7 @@ except RuntimeError as e:
 setup(
     name="sjlt",
     version="0.1.0",
-    author="Your Name", # You can change this
+    author="Pingbang Hu",
     description="A PyTorch package for Sparse Johnson-Lindenstrauss Transform with CUDA.",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
