@@ -35,7 +35,7 @@ pip install -e .
 ```
 
 >  [!NOTE]
-> Due to the default isolation building behavior of `pip install` (this applies on both "Install from PyPI" and "INstall from Source"), even if `nvcc -V` and `torch.version.cuda` gives the same CUDa version, you can still encounter the something like the following:
+> Due to the default [isolation building behavior](https://github.com/vllm-project/vllm/issues/1453#issuecomment-1951453221) of `pip install` (this applies on both "Install from PyPI" and "Install from Source"), even if `nvcc -V` and `torch.version.cuda` gives the same CUDA version, you can still encounter the something like the following:
 > ```bash
 > RuntimeError:
 > The detected CUDA version (11.8) mismatches the version that was used to compile
