@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sjlt"
-version = "0.1.1"
+version = "0.1.2"
 description = "Sparse Johnson-Lindenstrauss Transform with CUDA acceleration"
 readme = "README.md"
 license = {text = "MIT"}

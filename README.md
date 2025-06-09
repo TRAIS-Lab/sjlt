@@ -20,6 +20,8 @@ This is a simple repository for *Sparse Johnson-Lindenstrauss Transform* with CU
 
 ### Install from PyPI
 
+To build the CUDA SJLT CUDA kernel, you will need to make sure that `nvcc -V` and `torch.version.cuda` gives the same CUDA version. Then, you can install `sjlt` via:
+
 ```bash
 pip install sjlt
 ```
@@ -32,16 +34,18 @@ cd sjlt
 pip install -e .
 ```
 
-> Due to the default `pip install -e .` isolation build behavior, it might help to use `pip install --no-build-isolation -e .` when you see something like:
+>  [!NOTE]
+> Due to the default isolation building behavior of `pip install` (this applies on both "Install from PyPI" and "INstall from Source"), even if `nvcc -V` and `torch.version.cuda` gives the same CUDa version, you can still encounter the something like the following:
 > ```bash
 > RuntimeError:
 > The detected CUDA version (11.8) mismatches the version that was used to compile
 > PyTorch (12.6). Please make sure to use the same CUDA versions.
 > ```
+> In this case, it might help to use `pip install --no-build-isolation` to force pip to build using your current virtual environment.
 
 ## Quick Start
 
-Our sjlt implementation has the following parameters:
+Our SJLT implementation accepts the following parameters:
 
 - `original_dim`: input dimension
 - `proj_dim`: output dimension
@@ -50,7 +54,8 @@ Our sjlt implementation has the following parameters:
 - `fixed_blocks`: CUDA blocks to use (default: `84`)
 
 
-> We note that the input is supposed to have `batch_dim`, i.e., `input.shape()` should be `(batch_size, original_dim)` and `output.shape()` will be `(batch_size, proj_dim)`.
+> [!Note]
+> The input is supposed to have `batch_dim`, i.e., `input.shape()` should be `(batch_size, original_dim)` and `output.shape()` will be `(batch_size, proj_dim)`.
 
 The following is a simple snippet of using our SJLT CUDA kernel:
 
@@ -66,6 +71,13 @@ x = torch.randn(100, 1024, device='cuda')
 y = proj(x)  # Shape: [100, 128]
 ```
 
+## Profile Example
+
+To profile the performance of the SJLT CUDA kernel, you can use the provided [profile](https://github.com/TRAIS-Lab/sjlt/blob/main/example/profile.ipynb) notebook. This benchmarks the projection speed for different input sizes and sparsity levels.
+
+<!-- Image -->
+![SJLT Example](Figures/profile.png)
+
 ## Troubleshooting
 
 If installation fails:
@@ -73,4 +85,3 @@ If installation fails:
 1. Ensure CUDA toolkit is installed and `nvcc` is in `PATH`
 2. Check PyTorch CUDA compatibility: `python -c "import torch; print(torch.cuda.is_available())"`
 3. Try reinstalling: `pip install sjlt --no-cache-dir --force-reinstall`
-
