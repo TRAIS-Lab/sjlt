@@ -64,9 +64,6 @@ proj = SJLTProjection(original_dim=1024, proj_dim=128, c=4)
 # Project some data
 x = torch.randn(100, 1024, device='cuda')
 y = proj(x)  # Shape: [100, 128]
-
-print(f"Compression ratio: {proj.get_compression_ratio():.2f}x")
-print(f"Sparsity: {proj.get_sparsity_ratio():.1%}")
 ```
 
 ## Troubleshooting
