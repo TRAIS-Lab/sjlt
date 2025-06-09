@@ -42,6 +42,13 @@ pip install -e .
 > PyTorch (12.6). Please make sure to use the same CUDA versions.
 > ```
 > In this case, it might help to use `pip install --no-build-isolation` to force pip to build using your current virtual environment.
+>
+> Furthermore, sometimes it is also helpful to add `--no-cache-dir` flag to force a fresh install.
+>
+> In summary, the most verbose way to install `sjlt` might be
+> ```bash
+> pip install --no-build-isolation --no-cache-dir sjlt
+> ```
 
 ## Quick Start
 
