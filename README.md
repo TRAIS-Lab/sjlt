@@ -50,7 +50,7 @@ Installing a CUDA kernel can be tricky. Here, I have gathered several common err
    ```bash
    error -- unsupported GNU version! gcc versions later than 11 are not supported! The nvcc flag '-allow-unsupported-compiler' can be used to override this version check; however, using an unsupported host compiler may cause compilation failure or incorrect run time execution. Use at your own risk.
    ```
-   This means your GCC version is too new for your CUDA version. Please ensure that you have the correct GCC version installed, and once you have done so, you can use the corresponding GCC version by setting the environment variables such as `CC=gcc-11 CXX=g++-11 pip install sjlt --no-build-isolation --no-cache-dir --force-reinstall`.
+   This means your GCC version is too new for your CUDA version. Please ensure that you have the correct GCC version installed, and once you have done so, you can use the corresponding GCC version by setting the environment variables such as `CC=gcc-11 CXX=g++-11 pip install sjlt --no-build-isolation --no-cache-dir --force-reinstall` in the case of `CUDA=11.8`.
 
 ## Quick Start
 
