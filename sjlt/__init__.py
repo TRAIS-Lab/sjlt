@@ -5,7 +5,7 @@ A PyTorch extension that provides GPU-accelerated sparse random projections
 using the Johnson-Lindenstrauss lemma for dimensionality reduction.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.1.5"
 __author__ = "Pingbang Hu"
 
 import torch

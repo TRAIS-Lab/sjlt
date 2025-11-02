@@ -67,7 +67,7 @@ except RuntimeError as e:
 # Main setup
 setup(
     name="sjlt",
-    version="0.1.3",
+    version="0.1.5",
     author="Pingbang Hu",
     description="A PyTorch package for Sparse Johnson-Lindenstrauss Transform with CUDA.",
     long_description=open("README.md").read(),
