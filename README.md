@@ -5,7 +5,7 @@ This is a simple repository for *Sparse Johnson-Lindenstrauss Transform* with CU
 ## Features
 
 - GPU-accelerated sparse random projections
-- Supports float32, float64, and bfloat16 data types
+- Supports float16, float32, float64, and bfloat16 data types
 - Optimized CUDA kernels for high performance
 - Easy integration with PyTorch workflows
 
