@@ -64,7 +64,7 @@ y = proj(x)  # Shape: [100, 128]
 
 ## Profile Example
 
-To profile the performance of the SJLT CUDA kernel, you can use the provided [profile](https://github.com/TRAIS-Lab/sjlt/blob/main/example/profile.ipynb) notebook. This benchmarks the projection speed for different input sizes and sparsity levels.
+To profile the performance of the SJLT CUDA kernel, you can use the provided [profile](https://github.com/TRAIS-Lab/sjlt/blob/main/test/profile.ipynb) notebook. This benchmarks the projection speed for different input sizes and sparsity levels.
 
 <!-- Image -->
 ![SJLT Example](Figures/profile.png)
@@ -105,14 +105,11 @@ In summary:
 If you find this repository valuable, please give it a star! Got any questions or feedback? Feel free to open an issue. Using this in your work? Please reference us using the provided citation:
 
 ```bibtex
-@misc{hu2025grass,
-  author        = {Pingbang Hu and Joseph Melkonian and Weijing Tang and Han Zhao and Jiaqi W. Ma},
-  title         = {GraSS: Scalable Influence Function with Sparse Gradient Compression},
-  archiveprefix = {arXiv},
-  eprint        = {2505.18976},
-  primaryclass  = {cs.LG},
-  url           = {https://arxiv.org/abs/2505.18976},
-  year          = {2025}
+@inproceedings{hu2025grass,
+  author    = {Pingbang Hu and Joseph Melkonian and Weijing Tang and Han Zhao and Jiaqi W. Ma},
+  title     = {GraSS: Scalable Data Attribution with Gradient Sparsification and Sparse Projection},
+  booktitle = {Advances in Neural Information Processing Systems},
+  year      = {2025}
 }
 ```
 
