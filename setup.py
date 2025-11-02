@@ -1,5 +1,3 @@
-import os
-import sys
 from setuptools import setup, find_packages
 from torch.utils.cpp_extension import BuildExtension, CUDAExtension
 import torch
@@ -69,7 +67,7 @@ except RuntimeError as e:
 # Main setup
 setup(
     name="sjlt",
-    version="0.1.0",
+    version="0.1.3",
     author="Pingbang Hu",
     description="A PyTorch package for Sparse Johnson-Lindenstrauss Transform with CUDA.",
     long_description=open("README.md").read(),

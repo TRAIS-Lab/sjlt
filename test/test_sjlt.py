@@ -40,7 +40,7 @@ class TestSJLTProjection:
         """Test with different data types"""
         proj = sjlt.SJLTProjection(original_dim=32, proj_dim=16, c=3)
 
-        for dtype in [torch.float32, torch.float64]:
+        for dtype in [torch.float32, torch.float64, torch.float16, torch.bfloat16]:
             x = torch.randn(5, 32, device='cuda', dtype=dtype)
             y = proj(x)
             assert y.dtype == dtype
