@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=64", "wheel", "torch", "numpy"]
+requires = ["setuptools>=64", "wheel", "ninja"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "sjlt"
-version = "0.1.5"
+version = "0.1.5.1"
 description = "Sparse Johnson-Lindenstrauss Transform with CUDA acceleration"
 readme = "README.md"
 license = {text = "MIT"}

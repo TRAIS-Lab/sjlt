@@ -5,7 +5,7 @@ A PyTorch extension that provides GPU-accelerated sparse random projections
 using the Johnson-Lindenstrauss lemma for dimensionality reduction.
 """
 
-__version__ = "0.1.5"
+__version__ = "0.1.5.1"
 __author__ = "Pingbang Hu"
 
 import torch
@@ -24,7 +24,6 @@ if CUDA_AVAILABLE:
         warnings.warn(
             f"sjlt CUDA extension could not be loaded: {e}\n"
             "Make sure the package was installed correctly with CUDA support.\n"
-            "Try: pip install sjlt --no-cache-dir --force-reinstall"
         )
 else:
     warnings.warn(

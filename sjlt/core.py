@@ -147,3 +147,57 @@ class SJLTProjection(nn.Module):
         total_elements = self.original_dim * self.proj_dim
         nonzero_elements = self.original_dim * self.c
         return 1.0 - (nonzero_elements / total_elements)
+
+    def transpose(self, y: torch.Tensor) -> torch.Tensor:
+        """
+        Apply the transpose of the SJLT projection matrix to input tensor.
+
+        This operation computes S^T @ y, where S is the sparse projection matrix.
+        It maps from the projected space back to the original dimension space.
+
+        Args:
+            y: Input tensor of shape [batch_size, proj_dim]
+
+        Returns:
+            Transposed projection of shape [batch_size, original_dim]
+
+        Example:
+            >>> proj = SJLTProjection(original_dim=1024, proj_dim=128, c=4)
+            >>> x = torch.randn(100, 1024, device='cuda')
+            >>> y = proj(x)  # Forward projection: [100, 1024] -> [100, 128]
+            >>> x_reconstructed = proj.transpose(y)  # Transpose: [100, 128] -> [100, 1024]
+        """
+        from ._C import sjlt_transpose_cuda
+
+        # Input validation
+        if y.dim() != 2:
+            raise ValueError(f"Input must be 2D tensor, got {y.dim()}D")
+        if y.size(1) != self.proj_dim:
+            raise ValueError(
+                f"Input dimension {y.size(1)} doesn't match expected {self.proj_dim}"
+            )
+
+        # Move input to correct device if needed
+        if y.device != self.device:
+            y = y.to(self.device)
+
+        # Ensure indices and signs are on same device (safety check)
+        rand_indices = self.rand_indices.to(y.device)
+        rand_signs = self.rand_signs.to(y.device)
+
+        # Apply SJLT transpose using CUDA kernel
+        try:
+            output = sjlt_transpose_cuda(
+                y,
+                rand_indices,
+                rand_signs,
+                self.original_dim,
+                self.c,
+                self.threads,
+                self.fixed_blocks
+            )[0]
+
+            return output
+
+        except Exception as e:
+            raise RuntimeError(f"CUDA kernel execution failed: {e}")

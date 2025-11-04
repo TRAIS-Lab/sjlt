@@ -34,6 +34,20 @@ cd sjlt
 pip install -e .
 ```
 
+### Recommended Environment Setup
+
+It's **not** required to follow the exact same steps in this section. But this is a verified environment setup flow that may help users to avoid most of the issues during the installation.
+
+```bash
+conda create -n sjlt python=3.10
+conda activate sjlt
+
+conda install -c "nvidia/label/cuda-11.8.0" cudatoolkit
+pip3 install torch==2.6.0 --index-url https://download.pytorch.org/whl/cu118
+
+pip install -e .
+```
+
 ## Quick Start
 
 Our SJLT implementation accepts the following parameters:
