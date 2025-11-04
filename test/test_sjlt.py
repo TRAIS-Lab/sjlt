@@ -1,18 +1,7 @@
 import pytest
 import torch
-import sys
-import os
+import sjlt
 
-# Add the parent directory to the path to import sjlt
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-try:
-    import sjlt
-    SJLT_AVAILABLE = sjlt.EXTENSION_AVAILABLE
-except ImportError:
-    SJLT_AVAILABLE = False
-
-@pytest.mark.skipif(not SJLT_AVAILABLE, reason="sjlt CUDA extension not available")
 @pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA not available")
 class TestSJLTProjection:
 
@@ -155,6 +144,124 @@ class TestSJLTProjection:
 
         # Should be equal (within floating point precision)
         assert torch.allclose(combined, separate, rtol=1e-5, atol=1e-6)
+
+    def test_transpose_adjoint_property(self):
+        """Test that S and S^T are adjoint: <Sx, y> = <x, S^T y>"""
+        proj = sjlt.SJLTProjection(original_dim=128, proj_dim=64, c=4)
+
+        # Create random vectors
+        x = torch.randn(10, 128, device='cuda')
+        y = torch.randn(10, 64, device='cuda')
+
+        # Compute <Sx, y>
+        Sx = proj(x)
+        inner_product_1 = (Sx * y).sum(dim=1)
+
+        # Compute <x, S^T y>
+        STy = proj.transpose(y)
+        inner_product_2 = (x * STy).sum(dim=1)
+
+        # These should be equal (within numerical precision)
+        # Note: SJLT uses sparse random matrices, so this should hold exactly
+        assert torch.allclose(inner_product_1, inner_product_2, rtol=1e-4, atol=1e-5)
+
+    def test_projection_idempotence_approximation(self):
+        """Test that S^T S applied to a vector preserves it approximately
+
+        For an orthogonal projection P, we have P^T P = I in the range of P.
+        SJLT is not exactly orthogonal but should approximately preserve vectors.
+        """
+        proj = sjlt.SJLTProjection(original_dim=256, proj_dim=128, c=4)
+
+        # Create random vectors
+        x = torch.randn(20, 256, device='cuda')
+
+        # Apply S then S^T
+        y = proj(x)
+        x_reconstructed = proj.transpose(y)
+
+        # Check that the reconstruction has reasonable correlation with original
+        # Normalize vectors for comparison
+        x_norm = x / (x.norm(dim=1, keepdim=True) + 1e-8)
+        x_rec_norm = x_reconstructed / (x_reconstructed.norm(dim=1, keepdim=True) + 1e-8)
+
+        # Compute cosine similarity
+        cosine_sim = (x_norm * x_rec_norm).sum(dim=1)
+
+        # The cosine similarity should be reasonably high (not perfect due to projection)
+        # but should show that the direction is somewhat preserved
+        mean_cosine_sim = cosine_sim.mean().item()
+
+        # This is a sanity check - the reconstruction shouldn't be random
+        assert mean_cosine_sim > 0.5, f"Mean cosine similarity too low: {mean_cosine_sim}"
+
+    def test_transpose_gram_matrix_property(self):
+        """Test that S^T S approximates a scaled identity matrix
+
+        For random projections with JL properties, S^T S should be close to
+        (original_dim / proj_dim) * I, at least in expectation.
+        """
+        proj = sjlt.SJLTProjection(original_dim=128, proj_dim=64, c=4)
+
+        # Create a set of orthonormal vectors (identity matrix rows)
+        # This makes it easier to analyze S^T S
+        num_samples = 64
+        I = torch.eye(num_samples, 128, device='cuda')
+
+        # Apply S then S^T to identity
+        SI = proj(I)
+        STSI = proj.transpose(SI)
+
+        # Extract the diagonal and off-diagonal elements
+        diag_elements = torch.diagonal(STSI[:num_samples, :num_samples], 0)
+
+        # The diagonal elements should be positive and relatively consistent
+        assert (diag_elements > 0).all(), "Diagonal elements should be positive"
+
+        # Check that diagonal variance is not too large (they should be similar)
+        diag_mean = diag_elements.mean()
+        diag_std = diag_elements.std()
+
+        # Standard deviation should be much smaller than mean
+        assert diag_std / diag_mean < 1.0, f"Diagonal elements too variable: mean={diag_mean}, std={diag_std}"
+
+    def test_transpose_preserves_inner_products_approximately(self):
+        """Test that inner products are approximately preserved through S^T S
+
+        This is a key property of JL transforms: <x, y> ≈ <Sx, Sy> / scaling
+        which implies <x, y> ≈ <x, S^T S y> with appropriate scaling
+        """
+        # Use a reasonable projection ratio
+        proj = sjlt.SJLTProjection(original_dim=256, proj_dim=128, c=4)
+
+        # Create pairs of random vectors
+        num_pairs = 50
+        x = torch.randn(num_pairs, 256, device='cuda')
+        y = torch.randn(num_pairs, 256, device='cuda')
+
+        # Compute original inner products
+        original_inner = (x * y).sum(dim=1)
+
+        # Compute inner products in projected space
+        Sx = proj(x)
+        Sy = proj(y)
+        projected_inner = (Sx * Sy).sum(dim=1)
+
+        # The projected inner product should correlate with the original
+        # (they won't be exactly equal due to the random projection)
+        correlation = torch.corrcoef(torch.stack([original_inner, projected_inner]))[0, 1]
+
+        # Correlation should be positive and significant for a good random projection
+        # Note: SJLT is sparse (c=4), so correlation won't be as high as dense projections
+        assert correlation > 0.3, f"Inner product correlation too low: {correlation}"
+
+        # Additionally, test via S^T S
+        STSy = proj.transpose(proj(y))
+        inner_via_STS = (x * STSy).sum(dim=1)
+
+        # This should also correlate well with original
+        correlation_STS = torch.corrcoef(torch.stack([original_inner, inner_via_STS]))[0, 1]
+        assert correlation_STS > 0.5, f"S^T S inner product correlation too low: {correlation_STS}"
 
 def test_cuda_info():
     """Test CUDA info function"""
