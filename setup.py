@@ -84,7 +84,7 @@ if not SKIP_CUDA_BUILD:
 
 setup(
     name="sjlt",
-    version="0.1.6.1",
+    version="0.1.7",
     author="Pingbang Hu",
     description="A PyTorch package for Sparse Johnson-Lindenstrauss Transform with CUDA.",
     long_description=open("README.md").read(),
