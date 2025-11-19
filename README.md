@@ -23,7 +23,7 @@ This is a simple repository for *Sparse Johnson-Lindenstrauss Transform* with CU
 To build the CUDA SJLT CUDA kernel, you will need to make sure that `nvcc -V` and `torch.version.cuda` gives the same CUDA version. Then, you can install `sjlt` via:
 
 ```bash
-pip install sjlt
+pip install sjlt --no-build-isolation
 ```
 
 ### Install from Source
@@ -31,7 +31,7 @@ pip install sjlt
 ```bash
 git clone https://github.com/TRAIS-Lab/sjlt
 cd sjlt
-pip install -e .
+pip install -e . --no-build-isolation
 ```
 
 ### Recommended Environment Setup
@@ -45,7 +45,7 @@ conda activate sjlt
 conda install -c "nvidia/label/cuda-11.8.0" cudatoolkit
 pip3 install torch==2.6.0 --index-url https://download.pytorch.org/whl/cu118
 
-pip install -e .
+pip install -e . --no-build-isolation
 ```
 
 ## Quick Start

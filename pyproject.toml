@@ -4,14 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sjlt"
-version = "0.1.6"
+version = "0.1.6.1"
 description = "Sparse Johnson-Lindenstrauss Transform with CUDA acceleration"
 readme = "README.md"
-license = {text = "MIT"}
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [{name = "Pingbang Hu", email = "pbb@illinois.edu"}]
 requires-python = ">=3.8"
 dependencies = [
-    "torch>=1.9.0",
     "numpy>=1.19.0"
 ]
 
